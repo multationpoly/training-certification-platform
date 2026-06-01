@@ -1,0 +1,17 @@
+@model IEnumerable<CourseSession>
+@{
+    ViewData["Title"] = "Instructor Dashboard";
+}
+<h1 class="h3 mb-3">Instructor Dashboard</h1>
+<h2 class="h5">Upcoming Sessions</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead><tr><th>Course</th><th>Room</th><th>Start</th><th>Enrolled</th></tr></thead>
+        <tbody>
+        @foreach (var session in Model.Where(s => s.StartDateTime <= DateTime.Now.AddDays(7) && s.StartDateTime >= DateTime.Now))
+        {
+            <tr><td>@session.Course?.Title</td><td>@session.Classroom?.RoomName</td><td>@session.StartDateTime</td><td>@session.Enrollments.Count</td></tr>
+        }
+        </tbody>
+    </table>
+</div>
