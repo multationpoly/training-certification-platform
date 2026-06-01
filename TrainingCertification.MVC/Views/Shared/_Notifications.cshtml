@@ -1,0 +1,54 @@
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject TrainingCertification.API.Data.ApplicationDbContext Db
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var notifications = string.IsNullOrEmpty(userId)
+        ? new List<Notification>()
+        : await Db.Notifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(5)
+            .ToListAsync();
+    var unreadCount = notifications.Count(n => !n.IsRead);
+}
+
+<div class="nav-item dropdown notification-menu">
+    <a class="nav-link notification-toggle dropdown-toggle" asp-controller="Notifications" asp-action="Index" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+        <span class="visually-hidden">Notifications</span>
+        <span class="badge rounded-pill notification-badge" id="notification-count">@unreadCount</span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown shadow">
+        <div class="notification-header">
+            <span class="fw-semibold">Notifications</span>
+            <span class="small text-muted">@unreadCount unread</span>
+        </div>
+        @if (notifications.Any())
+        {
+            <div class="notification-list">
+                @foreach (var notification in notifications)
+                {
+                    <a class="dropdown-item notification-item @(notification.IsRead ? "" : "is-unread")" asp-controller="Notifications" asp-action="Index">
+                        <span class="notification-title">@notification.Title</span>
+                        <span class="notification-message">@notification.Message</span>
+                        <span class="notification-time">@notification.CreatedAt.ToLocalTime().ToString("MMM d, h:mm tt")</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="notification-empty">You're all caught up.</div>
+        }
+        <div class="notification-footer">
+            <a class="btn btn-sm btn-primary" asp-controller="Notifications" asp-action="Index">View all</a>
+            @if (unreadCount > 0)
+            {
+                <form asp-controller="Notifications" asp-action="MarkAllRead" method="post">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Mark read</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

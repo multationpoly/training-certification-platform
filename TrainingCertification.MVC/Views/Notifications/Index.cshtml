@@ -1,0 +1,2 @@
+﻿@model IEnumerable<TrainingCertification.API.Models.Notification>
+<h1 class="h3">Notifications</h1><div class="list-group">@foreach (var n in Model) { <div class="list-group-item"><div class="d-flex justify-content-between"><strong>@n.Title</strong><span class="small text-muted">@n.CreatedAt</span></div><p class="mb-0">@n.Message</p></div> }</div>
