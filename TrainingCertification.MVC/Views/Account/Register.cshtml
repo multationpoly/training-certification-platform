@@ -1,0 +1,22 @@
+@model TrainingCertification.MVC.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Trainee Registration";
+}
+<h1 class="h3 mb-3">Trainee Registration</h1>
+<form method="post" class="card shadow-sm p-4 col-lg-6">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <label asp-for="FullName" class="form-label"></label>
+    <input asp-for="FullName" class="form-control mb-3" />
+    <span asp-validation-for="FullName" class="text-danger"></span>
+    <label asp-for="Email" class="form-label"></label>
+    <input asp-for="Email" class="form-control mb-3" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+    <label asp-for="Password" class="form-label"></label>
+    <input asp-for="Password" class="form-control mb-3" />
+    <span asp-validation-for="Password" class="text-danger"></span>
+    <label asp-for="ConfirmPassword" class="form-label"></label>
+    <input asp-for="ConfirmPassword" class="form-control mb-3" />
+    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    <button class="btn btn-primary" data-loading-text="Creating account...">Register</button>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
