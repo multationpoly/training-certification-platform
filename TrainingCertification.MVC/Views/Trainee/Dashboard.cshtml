@@ -1,0 +1,73 @@
+@model TrainingCertification.MVC.ViewModels.TraineeDashboardViewModel
+@using TrainingCertification.API.Models
+@{
+    ViewData["Title"] = "Trainee Dashboard";
+}
+<h1 class="h3 mb-3">Trainee Dashboard</h1>
+
+<h2 class="h5">Active Enrollments</h2>
+<div class="table-responsive mb-4">
+    <table class="table table-striped">
+        <thead><tr><th>Course</th><th>Session</th><th>Room</th><th>Status</th><th>Assessment</th></tr></thead>
+        <tbody>
+        @foreach (var enrollment in Model.Enrollments.Where(e => e.Status != EnrollmentStatus.Dropped))
+        {
+            <tr>
+                <td>@enrollment.CourseSession?.Course?.Title</td>
+                <td>@enrollment.CourseSession?.StartDateTime</td>
+                <td>@enrollment.CourseSession?.Classroom?.RoomName</td>
+                <td>@enrollment.Status</td>
+                <td>@(enrollment.AssessmentResult == null ? "Pending" : enrollment.AssessmentResult.Result)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<h2 class="h5">Certification Progress</h2>
+<div class="row g-3 mb-4">
+@foreach (var progress in Model.CertificationProgress)
+{
+    var percent = progress.TotalRequiredCourses == 0 ? 0 : (progress.CompletedRequiredCourses * 100 / progress.TotalRequiredCourses);
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between gap-2">
+                    <h3 class="h6">@progress.Track.Name</h3>
+                    <span class="badge @(progress.Status == TraineeCertificationStatus.Issued ? "bg-success text-white" : progress.Status == TraineeCertificationStatus.Eligible ? "bg-info text-dark" : "bg-secondary text-white")">@progress.Status</span>
+                </div>
+                <div class="progress mb-2" role="progressbar" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: @percent%">@progress.CompletedRequiredCourses/@progress.TotalRequiredCourses</div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(progress.CertificateReferenceNumber))
+                {
+                    <div class="small">Certificate: @progress.CertificateReferenceNumber</div>
+                }
+                else if (progress.RemainingCourses.Any())
+                {
+                    <div class="small text-muted">Remaining: @string.Join(", ", progress.RemainingCourses)</div>
+                }
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+<h2 class="h5">Payment Balances</h2>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead><tr><th>Course</th><th>Fee</th><th>Paid</th><th>Outstanding</th><th>Status</th></tr></thead>
+        <tbody>
+        @foreach (var payment in Model.PaymentSummaries)
+        {
+            <tr>
+                <td>@payment.Enrollment.CourseSession?.Course?.Title</td>
+                <td>@CurrencyFormat.Money(payment.Fee)</td>
+                <td>@CurrencyFormat.Money(payment.Paid)</td>
+                <td>@CurrencyFormat.Money(payment.Outstanding)</td>
+                <td><span class="badge @(payment.Status == PaymentStatus.Paid ? "bg-success text-white" : payment.Status == PaymentStatus.Overdue ? "bg-danger text-white" : "bg-warning text-dark")">@payment.Status</span></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

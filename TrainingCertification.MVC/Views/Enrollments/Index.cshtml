@@ -1,0 +1,63 @@
+@model IEnumerable<TrainingCertification.API.Models.Enrollment>
+@using TrainingCertification.API.Models
+
+<h1 class="h3">Enrollments</h1>
+<div class="table-responsive">
+    <table class="table table-striped bg-white align-middle">
+        <thead>
+            <tr>
+                <th>Trainee</th>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Assessment</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var e in Model)
+        {
+            <tr>
+                <td>@e.Trainee?.FullName</td>
+                <td>@e.CourseSession?.Course?.Title</td>
+                <td>@e.Status</td>
+                <td>@(e.AssessmentResult == null ? "Pending" : $"{e.AssessmentResult.Result} ({e.AssessmentResult.Score:0.#})")</td>
+                <td>
+                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                        @if (User.IsInRole(Roles.TrainingCoordinator) || User.IsInRole(Roles.Instructor))
+                        {
+                            <form asp-action="ChangeStatus" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="id" value="@e.Id" />
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="@EnrollmentStatus.Confirmed">Confirmed</option>
+                                    <option value="@EnrollmentStatus.Attending">Attending</option>
+                                    <option value="@EnrollmentStatus.Completed">Completed</option>
+                                    <option value="@EnrollmentStatus.Dropped">Dropped</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-primary">Update</button>
+                            </form>
+                            <form asp-action="RecordAssessment" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="enrollmentId" value="@e.Id" />
+                                <select name="result" class="form-select form-select-sm">
+                                    <option value="@AssessmentStatus.Pass">Pass</option>
+                                    <option value="@AssessmentStatus.Fail">Fail</option>
+                                </select>
+                                <input name="score" type="number" min="0" max="100" step="0.01" value="@(e.AssessmentResult?.Score ?? 0)" class="form-control form-control-sm" style="width: 5.5rem" />
+                                <input name="remarks" class="form-control form-control-sm" placeholder="Notes" />
+                                <button class="btn btn-sm btn-outline-success">Record</button>
+                            </form>
+                        }
+                        @if (User.IsInRole(Roles.TrainingCoordinator))
+                        {
+                            <a asp-controller="Payments" asp-action="Create" asp-route-enrollmentId="@e.Id" class="btn btn-sm btn-outline-secondary">Payment</a>
+                        }
+                        <form asp-action="Drop" method="post">
+                            <input type="hidden" name="id" value="@e.Id" />
+                            <button class="btn btn-sm btn-outline-danger">Drop</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

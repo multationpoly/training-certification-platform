@@ -1,0 +1,12 @@
+@model TrainingCertification.MVC.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Coordinator Dashboard";
+}
+<h1 class="h3 mb-3">Coordinator Dashboard</h1>
+<div class="row g-3">
+    <div class="col-md"><div class="card metric p-3"><span>Courses</span><strong class="fs-3">@Model.Courses</strong></div></div>
+    <div class="col-md"><div class="card metric p-3"><span>Sessions</span><strong class="fs-3">@Model.Sessions</strong></div></div>
+    <div class="col-md"><div class="card metric p-3"><span>Enrollments</span><strong class="fs-3">@Model.Enrollments</strong></div></div>
+    <div class="col-md"><div class="card metric p-3"><span>Revenue</span><strong class="fs-3">@($"BHD {Model.Revenue}")</strong></div></div>
+    <div class="col-md"><div class="card metric p-3"><span>Certificates</span><strong class="fs-3">@Model.Certificates</strong></div></div>
+</div>
