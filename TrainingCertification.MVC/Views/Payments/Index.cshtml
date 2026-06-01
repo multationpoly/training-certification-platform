@@ -1,0 +1,28 @@
+@model IEnumerable<TrainingCertification.MVC.ViewModels.PaymentSummaryViewModel>
+@using TrainingCertification.API.Models
+
+<h1 class="h3">Payments</h1>
+<div class="table-responsive">
+    <table class="table table-striped bg-white align-middle">
+        <thead><tr><th>Trainee</th><th>Course</th><th>Fee</th><th>Paid</th><th>Outstanding</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Enrollment.Trainee?.FullName</td>
+                <td>@item.Enrollment.CourseSession?.Course?.Title</td>
+                <td>@CurrencyFormat.Money(item.Fee)</td>
+                <td>@CurrencyFormat.Money(item.Paid)</td>
+                <td>@CurrencyFormat.Money(item.Outstanding)</td>
+                <td><span class="badge @(item.Status == PaymentStatus.Paid ? "bg-success text-white" : item.Status == PaymentStatus.Overdue ? "bg-danger text-white" : "bg-warning text-dark")">@item.Status</span></td>
+                <td class="text-end">
+                    @if (User.IsInRole(Roles.TrainingCoordinator) && item.Outstanding > 0)
+                    {
+                        <a asp-action="Create" asp-route-enrollmentId="@item.Enrollment.Id" class="btn btn-sm btn-outline-primary">Record Payment</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
