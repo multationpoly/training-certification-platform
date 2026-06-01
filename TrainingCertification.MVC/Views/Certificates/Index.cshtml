@@ -1,0 +1,33 @@
+@model IEnumerable<TrainingCertification.API.Models.Certificate>
+@using TrainingCertification.API.Models
+@{
+    var eligible = ViewBag.EligibleCertifications as IEnumerable<TraineeCertification> ?? Enumerable.Empty<TraineeCertification>();
+}
+
+<h1 class="h3">Certificates</h1>
+@if (User.IsInRole(Roles.TrainingCoordinator) && eligible.Any())
+{
+    <div class="bg-white border rounded p-3 mb-3">
+        <h2 class="h5">Generate Eligible Certificate</h2>
+        @foreach (var item in eligible)
+        {
+            <form asp-action="Generate" method="post" class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <input type="hidden" name="traineeId" value="@item.TraineeId" />
+                <input type="hidden" name="trackId" value="@item.CertificationTrackId" />
+                <span>@item.Trainee?.FullName - @item.CertificationTrack?.Name</span>
+                <button class="btn btn-sm btn-success">Generate</button>
+            </form>
+        }
+    </div>
+}
+<div class="table-responsive">
+    <table class="table table-striped bg-white">
+        <thead><tr><th>Trainee</th><th>Track</th><th>Reference</th><th>Issue Date</th><th>Status</th></tr></thead>
+        <tbody>
+        @foreach (var c in Model)
+        {
+            <tr><td>@c.Trainee?.FullName</td><td>@c.CertificationTrack?.Name</td><td>@c.ReferenceNumber</td><td>@c.IssueDate.ToShortDateString()</td><td>@(c.IsRevoked ? "Revoked" : "Valid")</td></tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,45 @@
+@model TrainingCertification.MVC.ViewModels.PublicLookupViewModel
+@{
+    ViewData["Title"] = "Public Certification Lookup";
+}
+<h1 class="h3 mb-3">Public Certification Lookup</h1>
+<form method="post" class="card p-4 shadow-sm col-lg-6 mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <label asp-for="TraineeId" class="form-label"></label>
+    <input asp-for="TraineeId" class="form-control mb-3" />
+    <span asp-validation-for="TraineeId" class="text-danger"></span>
+    <label asp-for="ReferenceNumber" class="form-label"></label>
+    <input asp-for="ReferenceNumber" class="form-control mb-3" />
+    <span asp-validation-for="ReferenceNumber" class="text-danger"></span>
+    <button class="btn btn-primary" data-loading-text="Checking...">Submit</button>
+</form>
+@if (Model.Error != null)
+{
+    <div class="alert alert-warning">@Model.Error</div>
+}
+@if (Model.Result != null)
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="h5">@Model.Result.CertificationName</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Trainee</dt><dd class="col-sm-9">@Model.Result.TraineeName</dd>
+                <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.Result.Status</dd>
+                <dt class="col-sm-3">Issued date</dt><dd class="col-sm-9">@(Model.Result.IssuedDate?.ToShortDateString() ?? "Not issued")</dd>
+            </dl>
+            <h3 class="h6 mt-4">Completed Courses</h3>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead><tr><th>Title</th><th>Result</th><th>Completion Date</th></tr></thead>
+                    <tbody>
+                    @foreach (var c in Model.Result.CompletedCourses)
+                    {
+                        <tr><td>@c.Title</td><td>@c.Result</td><td>@c.CompletionDate.ToShortDateString()</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
