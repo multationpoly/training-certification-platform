@@ -1,0 +1,35 @@
+@page
+@model TrainingCertification.Reporting.Pages.IndexModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="login-shell">
+    <form method="post" class="login-panel">
+        <div class="mb-4">
+            <p class="text-uppercase text-muted small mb-1">Training Platform - Reports</p>
+            <h1 class="h3 mb-0">Coordinator Login</h1>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="alert alert-warning">@Model.Message</div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.Error))
+        {
+            <div class="alert alert-danger">@Model.Error</div>
+        }
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" autocomplete="username" required />
+        </div>
+        <div class="mb-4">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" required />
+        </div>
+        <button class="btn btn-dark w-100" type="submit">Login</button>
+    </form>
+</div>

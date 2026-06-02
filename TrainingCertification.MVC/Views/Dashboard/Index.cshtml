@@ -1,0 +1,7 @@
+﻿@model TrainingCertification.MVC.ViewModels.DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+<h1 class="h3 mb-3">Dashboard</h1>
+<div class="row g-3">
+@foreach (var item in new[] { ("Courses", Model.Courses.ToString()), ("Sessions", Model.Sessions.ToString()), ("Enrollments", Model.Enrollments.ToString()), ("Revenue", Model.Revenue.ToString("C0")), ("Certificates", Model.Certificates.ToString()) })
+{ <div class="col-md"><div class="card metric shadow-sm"><div class="card-body"><div class="text-muted small">@item.Item1</div><div class="fs-4 fw-semibold">@item.Item2</div></div></div></div> }
+</div>

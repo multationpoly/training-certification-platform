@@ -1,0 +1,44 @@
+@page "/Dashboard"
+@model TrainingCertification.Reporting.Pages.DashboardModel
+@using TrainingCertification.Reporting.Helpers
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-heading">
+    <div>
+        <p class="text-muted mb-1">Training Platform - Reports</p>
+        <h1>Reports Dashboard</h1>
+    </div>
+</div>
+
+@if (Model.Dashboard.HasError)
+{
+    <div class="alert alert-warning">@Model.Dashboard.ErrorMessage</div>
+}
+
+<div class="metrics-grid">
+    <div class="metric-card">
+        <span>Total active courses</span>
+        <strong>@(Model.Dashboard.TotalActiveCourses?.ToString() ?? "—")</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total enrollments this month</span>
+        <strong>@(Model.Dashboard.TotalEnrollmentsThisMonth?.ToString() ?? "—")</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total certifications issued</span>
+        <strong>@(Model.Dashboard.TotalCertificationsIssued?.ToString() ?? "—")</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total outstanding balance</span>
+        <strong>@(Model.Dashboard.TotalOutstandingPaymentBalance.HasValue ? ReportFormat.Money(Model.Dashboard.TotalOutstandingPaymentBalance.Value) : "—")</strong>
+    </div>
+</div>
+
+<div class="quick-links">
+    <a asp-page="/Reports/Enrollments">Enrollment Report</a>
+    <a asp-page="/Reports/InstructorWorkload">Instructor Workload Report</a>
+    <a asp-page="/Reports/Certifications">Certification Report</a>
+    <a asp-page="/Reports/Revenue">Revenue Report</a>
+</div>

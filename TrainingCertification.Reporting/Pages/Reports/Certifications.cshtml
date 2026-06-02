@@ -1,0 +1,80 @@
+@page
+@model TrainingCertification.Reporting.Pages.Reports.CertificationsModel
+@using System.Text.Json
+@using TrainingCertification.Reporting.Helpers
+@{
+    ViewData["Title"] = "Certification Report";
+    var labels = Model.Report.Rows.Select(row => row.TrackName).ToList();
+    var inProgress = Model.Report.Rows.Select(row => row.InProgress).ToList();
+    var eligible = Model.Report.Rows.Select(row => row.Eligible).ToList();
+    var issued = Model.Report.Rows.Select(row => row.Issued).ToList();
+}
+
+<div class="page-heading">
+    <h1>Certification Completion</h1>
+</div>
+
+@if (Model.Report.HasError)
+{
+    <div class="alert alert-warning">@Model.Report.ErrorMessage</div>
+}
+else if (!Model.Report.Rows.Any())
+{
+    <div class="alert alert-info">No certification track data available</div>
+}
+else
+{
+    <div class="metrics-grid">
+        <div class="metric-card"><span>Total In Progress</span><strong>@Model.Report.TotalInProgress</strong></div>
+        <div class="metric-card"><span>Total Eligible</span><strong>@Model.Report.TotalEligible</strong></div>
+        <div class="metric-card"><span>Total Issued</span><strong>@Model.Report.TotalIssued</strong></div>
+    </div>
+
+    <div class="report-panel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Track Name</th>
+                        <th>Required Courses</th>
+                        <th>In Progress</th>
+                        <th>Eligible</th>
+                        <th>Issued</th>
+                        <th>Completion Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Report.Rows)
+                    {
+                        var progressClass = row.CompletionRate >= 70 ? "bg-success" : row.CompletionRate >= 40 ? "bg-warning" : "bg-danger";
+                        <tr>
+                            <td>@row.TrackName</td>
+                            <td>@row.RequiredCourses</td>
+                            <td>@row.InProgress</td>
+                            <td>@row.Eligible</td>
+                            <td>@row.Issued</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1">
+                                        <div class="progress-bar @progressClass" style="width:@row.CompletionRate%"></div>
+                                    </div>
+                                    <span>@ReportFormat.Percent(row.CompletionRate)</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="report-panel chart-wrap">
+        <canvas id="certificationChart"></canvas>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        reportingCharts.renderStackedBar('certificationChart', @Html.Raw(JsonSerializer.Serialize(labels)), @Html.Raw(JsonSerializer.Serialize(inProgress)), @Html.Raw(JsonSerializer.Serialize(eligible)), @Html.Raw(JsonSerializer.Serialize(issued)));
+    </script>
+}
