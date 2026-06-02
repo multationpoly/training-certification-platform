@@ -1,0 +1,33 @@
+@model IEnumerable<Classroom>
+@{
+    ViewData["Title"] = "Classrooms";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Classrooms</h1>
+    <a asp-action="CreateClassroom" class="btn btn-primary">Add Classroom</a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Name</th><th>Location</th><th>Capacity</th><th>Equipment</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@room.RoomName</td>
+                <td>@room.Location</td>
+                <td>@room.Capacity</td>
+                <td>@string.Join(", ", room.Equipment.Select(e => e.Name))</td>
+                <td>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="EditClassroom" asp-route-id="@room.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <form asp-action="DeleteClassroom" method="post">
+                            <input type="hidden" name="id" value="@room.Id" />
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

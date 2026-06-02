@@ -1,0 +1,40 @@
+@model IEnumerable<CourseCategory>
+@{
+    ViewData["Title"] = "Categories";
+}
+<h1 class="h3 mb-3">Categories</h1>
+<form asp-action="SaveCategory" method="post" class="card p-3 mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">New Category</label>
+            <input name="Name" class="form-control" required />
+        </div>
+        <div class="col-auto"><button class="btn btn-primary">Add</button></div>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Name</th><th>Courses</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>
+                    <form asp-action="SaveCategory" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="Id" value="@category.Id" />
+                        <input name="Name" value="@category.Name" class="form-control form-control-sm" />
+                        <button class="btn btn-sm btn-outline-primary">Save</button>
+                    </form>
+                </td>
+                <td>@category.Courses.Count</td>
+                <td class="text-end">
+                    <form asp-action="DeleteCategory" method="post">
+                        <input type="hidden" name="id" value="@category.Id" />
+                        <button class="btn btn-sm btn-outline-danger" disabled="@(category.Courses.Any())">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
