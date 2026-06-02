@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Training Certification Platform</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body data-enrollment-hub-url="@Url.Content("~/hubs/enrollment")">
+<header>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm app-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" asp-controller="Home" asp-action="Index">Training Certification</a>
+        <div class="navbar-auth d-flex gap-2 align-items-center text-white ms-auto">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <span class="small">@User.Identity.Name</span>
+                <partial name="_Notifications" />
+                <form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-sm btn-outline-light">Logout</button></form>
+            }
+            else
+            {
+                <a class="btn btn-sm btn-outline-light" asp-controller="Account" asp-action="Login">Login</a>
+                <a class="btn btn-sm btn-light" asp-controller="Account" asp-action="Register">Register</a>
+            }
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav app-navbar-nav">
+                @if (User.IsInRole(TrainingCertification.API.Models.Roles.TrainingCoordinator))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Coordinator" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Courses" asp-action="Index">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Sessions" asp-action="Index">Sessions</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Enrollments" asp-action="Index">Enrollments</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Payments" asp-action="Index">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Certificates" asp-action="Index">Certifications</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" asp-controller="Coordinator" asp-action="Users">Users</a></li>
+                            <li><a class="dropdown-item" asp-controller="Coordinator" asp-action="Instructors">Instructors</a></li>
+                            <li><a class="dropdown-item" asp-controller="Coordinator" asp-action="Categories">Categories</a></li>
+                            <li><a class="dropdown-item" asp-controller="Coordinator" asp-action="Classrooms">Classrooms</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><a class="dropdown-item" asp-controller="Public" asp-action="CertificationLookup">Verify Certificate</a></li>
+                        </ul>
+                    </li>
+                }
+                else if (User.IsInRole(TrainingCertification.API.Models.Roles.Instructor))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Instructor" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Instructor" asp-action="Sessions">My Sessions</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Instructor" asp-action="Assessments">Assessments</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Instructor" asp-action="Profile">Profile</a></li>
+                }
+                else if (User.IsInRole(TrainingCertification.API.Models.Roles.Trainee))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Trainee" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Courses" asp-action="Index">Course Catalog</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Enrollments" asp-action="Index">My Enrollments</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Certificates" asp-action="Index">My Certifications</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Payments" asp-action="Index">Payments</a></li>
+                }
+                @if (!User.IsInRole(TrainingCertification.API.Models.Roles.TrainingCoordinator))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Public" asp-action="CertificationLookup">Verify Certificate</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+</header>
+<main class="container py-4">
+    <partial name="_Alerts" />
+    @RenderBody()
+</main>
+<footer class="border-top py-3 mt-4">
+    <div class="container small text-muted">IT8118 Advanced Programming - Training & Certification Platform - Brief C</div>
+</footer>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
