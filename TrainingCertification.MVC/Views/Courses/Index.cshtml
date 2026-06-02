@@ -1,0 +1,62 @@
+@model TrainingCertification.MVC.ViewModels.CourseListViewModel
+@using TrainingCertification.API.Models
+@using TrainingCertification.MVC.ViewModels
+@{
+    var items = ViewBag.CatalogItems as IEnumerable<CourseCatalogItemViewModel> ?? Model.Courses.Select(c => new CourseCatalogItemViewModel { Course = c });
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Course Catalog</h1>
+    @if (User.IsInRole(Roles.TrainingCoordinator))
+    {
+        <a asp-action="Create" class="btn btn-primary">Create Course</a>
+    }
+</div>
+<form class="row g-2 mb-3">
+    <div class="col-md-5"><input name="search" value="@Model.Search" class="form-control" placeholder="Search courses" /></div>
+    <div class="col-auto"><button class="btn btn-outline-primary">Search</button></div>
+</form>
+<div class="row g-3">
+@foreach (var item in items)
+{
+    var c = item.Course;
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between gap-2">
+                    <div class="small text-muted">@c.CourseCategory?.Name</div>
+                    @if (!c.IsActive)
+                    {
+                        <span class="badge bg-secondary text-white">Inactive</span>
+                    }
+                </div>
+                <h2 class="h5">@c.Title</h2>
+                <p>@c.Description</p>
+                @if (!string.IsNullOrWhiteSpace(item.PrerequisiteTitle))
+                {
+                    <div class="small @(item.PrerequisiteMet ? "text-success" : "text-danger")">Prerequisite: @item.PrerequisiteTitle @(item.PrerequisiteMet ? "met" : "required")</div>
+                }
+                @if (item.AlreadyPassed)
+                {
+                    <div class="small text-success">Completed with pass</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(c.RequiredEquipment))
+                {
+                    <div class="small text-muted">Equipment: @c.RequiredEquipment</div>
+                }
+                <div class="d-flex justify-content-between mt-2"><span>@c.DurationDays days</span><strong>@CurrencyFormat.Money(c.EnrollmentFee)</strong></div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-primary">View sessions</a>
+                    @if (User.IsInRole(Roles.TrainingCoordinator))
+                    {
+                        <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <form asp-action="ToggleActive" asp-route-id="@c.Id" method="post">
+                            <button class="btn btn-sm btn-outline-warning">@(c.IsActive ? "Deactivate" : "Activate")</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

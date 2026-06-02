@@ -1,0 +1,61 @@
+@model IEnumerable<TrainingCertification.API.Models.CourseSession>
+@using TrainingCertification.API.Models
+
+<h1 class="h3">Scheduled Sessions</h1>
+<div id="live-update-notice" class="alert alert-warning d-none py-2">Live updates disconnected</div>
+@if (User.IsInRole(Roles.TrainingCoordinator))
+{
+    <p><a asp-action="Create" class="btn btn-primary">Schedule Session</a></p>
+}
+<div class="table-responsive">
+    <table class="table table-hover bg-white shadow-sm align-middle">
+        <thead><tr><th>Course</th><th>Instructor</th><th>Room</th><th>Start</th><th>Remaining</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var s in Model)
+        {
+            var usedSeats = s.Enrollments.Count(e => e.Status != EnrollmentStatus.Dropped);
+            var remaining = s.Capacity - usedSeats;
+            <tr>
+                <td>@s.Course?.Title</td>
+                <td>@s.InstructorProfile?.ApplicationUser?.FullName</td>
+                <td>@s.Classroom?.RoomName</td>
+                <td>@s.StartDateTime</td>
+                <td><span class="badge @(remaining > 0 ? "bg-info text-dark" : "bg-danger text-white")" data-session-id="@s.Id">@remaining</span></td>
+                <td>
+                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                    @if (User.IsInRole(Roles.Trainee))
+                    {
+                        <form asp-controller="Enrollments" asp-action="Enroll" method="post">
+                            <input type="hidden" name="sessionId" value="@s.Id" />
+                            @if (remaining <= 0)
+                            {
+                                <button class="btn btn-sm btn-outline-primary" data-enroll-session-id="@s.Id" disabled>Full</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-primary" data-enroll-session-id="@s.Id">Enroll</button>
+                            }
+                        </form>
+                    }
+                    @if (User.IsInRole(Roles.TrainingCoordinator))
+                    {
+                        <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        @if (s.Status != CourseSessionStatus.Cancelled)
+                        {
+                            <form asp-action="Cancel" method="post">
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button class="btn btn-sm btn-outline-danger">Cancel</button>
+                            </form>
+                        }
+                    }
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/enrollment-counter.js" asp-append-version="true"></script>
+}
