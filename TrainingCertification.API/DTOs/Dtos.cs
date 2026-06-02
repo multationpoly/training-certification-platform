@@ -1,0 +1,23 @@
+namespace TrainingCertification.API.DTOs;
+
+public record LoginRequest(string Email, string Password);
+public record RegisterRequest(string Email, string Password, string FullName);
+public record AuthResponse(string Token, string Email, string FullName, IList<string> Roles);
+public record ApiResponse<T>(bool Success, T? Data, string Message);
+public record CourseDto(int Id, string Title, string Category, int DurationDays, int Capacity, decimal EnrollmentFee, string Description, string? Prerequisite, string RequiredEquipment);
+public record CourseDetailDto(int Id, string Title, string Description, string Category, int DurationDays, int Capacity, decimal EnrollmentFee, string? Prerequisite, string RequiredEquipment, IEnumerable<SessionDto> Sessions);
+public record SessionDto(int Id, int CourseId, string CourseTitle, string InstructorName, string Classroom, DateTime StartDateTime, DateTime EndDateTime, int Capacity, int EnrolledCount, int RemainingSeats);
+public record CreateSessionDto(int CourseId, int InstructorProfileId, int ClassroomId, DateTime StartDateTime, DateTime EndDateTime, int Capacity);
+public record CreateEnrollmentDto(int CourseSessionId, string TraineeId);
+public record UpdateEnrollmentStatusDto(string Status, string? Notes);
+public record RecordAssessmentDto(int EnrollmentId, string Result, decimal Score, string? InstructorNotes);
+public record CertificateVerifyDto(string TraineeId, string ReferenceNumber);
+public record CertificateInfoDto(string TraineeName, string TrackName, string ReferenceNumber, DateTime IssueDate, bool IsValid, IEnumerable<string> CompletedCourses);
+public record PublicCertificationDto(string TraineeName, string CertificationName, string Status, DateTime? IssuedDate, IEnumerable<CompletedCourseDto> CompletedCourses);
+public record CompletedCourseDto(string Title, string Result, DateTime CompletionDate);
+public record EnrollmentListDto(int Id, int SessionId, string CourseTitle, DateTime StartDateTime, string Status);
+public record SessionEnrollmentDto(int EnrollmentId, string TraineeId, string TraineeName, string Status);
+public record RevenueReportDto(int SessionId, string CourseTitle, decimal Fee, decimal TotalCollected, decimal Outstanding, bool IsOverdue);
+public record EnrollmentReportDto(string CourseTitle, string Category, int TotalEnrollments);
+public record WorkloadReportDto(string InstructorName, int SessionsAssigned, int TotalTrainees, decimal CompletionRate);
+public record CertificationReportDto(string TrackName, int TotalEligible, int TotalIssued, int InProgress);
