@@ -1,0 +1,54 @@
+@model TrainingCertification.API.Models.Course
+@using TrainingCertification.API.Models
+@using TrainingCertification.MVC.ViewModels
+@{
+    ViewData["Title"] = Model.Title;
+    var catalogItem = (ViewBag.CatalogItems as IEnumerable<CourseCatalogItemViewModel>)?.FirstOrDefault();
+}
+<h1 class="h3">@Model.Title</h1>
+<p class="lead">@Model.Description</p>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <span class="badge bg-secondary text-white">@Model.CourseCategory?.Name</span>
+    <span class="badge bg-light text-dark border">@Model.DurationDays days</span>
+    <span class="badge bg-light text-dark border">@CurrencyFormat.Money(Model.EnrollmentFee)</span>
+    @if (!string.IsNullOrWhiteSpace(Model.RequiredEquipment))
+    {
+        <span class="badge bg-light text-dark border">Equipment: @Model.RequiredEquipment</span>
+    }
+    @if (!string.IsNullOrWhiteSpace(catalogItem?.PrerequisiteTitle))
+    {
+        <span class="badge @(catalogItem.PrerequisiteMet ? "bg-success" : "bg-danger") text-white">Prerequisite: @catalogItem.PrerequisiteTitle @(catalogItem.PrerequisiteMet ? "met" : "required")</span>
+    }
+</div>
+<div id="live-update-notice" class="alert alert-warning d-none py-2">Live updates disconnected</div>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead><tr><th>Start</th><th>End</th><th>Capacity</th><th>Remaining</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var s in Model.Sessions.Where(x => x.Status == CourseSessionStatus.Scheduled))
+        {
+            var usedSeats = s.Enrollments.Count(e => e.Status != EnrollmentStatus.Dropped);
+            var remaining = s.Capacity - usedSeats;
+            var canEnroll = User.IsInRole(Roles.Trainee) && remaining > 0 && (catalogItem?.PrerequisiteMet ?? true) && !(catalogItem?.AlreadyPassed ?? false);
+            <tr>
+                <td>@s.StartDateTime</td>
+                <td>@s.EndDateTime</td>
+                <td>@s.Capacity</td>
+                <td><span class="badge @(remaining > 0 ? "bg-success" : "bg-danger") text-white" data-session-id="@s.Id">@remaining spots remaining</span></td>
+                <td>
+                    @if (User.IsInRole(Roles.Trainee))
+                    {
+                        <form asp-controller="Enrollments" asp-action="Enroll" method="post">
+                            <input type="hidden" name="sessionId" value="@s.Id" />
+                            <button class="btn btn-sm btn-primary" data-enroll-session-id="@s.Id" disabled="@(!canEnroll)">@(remaining <= 0 ? "Full" : canEnroll ? "Enroll" : "Unavailable")</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+@section Scripts {
+    <script src="~/js/enrollment-counter.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,56 @@
+@model TrainingCertification.MVC.ViewModels.SessionFormViewModel
+@using TrainingCertification.API.Models
+@{
+    var isEdit = Model.Session.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Session" : "Schedule Session";
+}
+<h1 class="h3">@(isEdit ? "Edit Session" : "Schedule Session")</h1>
+<form method="post" class="card p-4 shadow-sm">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="Session.Id" type="hidden" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label>Course</label>
+            <select asp-for="Session.CourseId" class="form-select" asp-items="@(new SelectList(Model.Courses, "Id", "Title"))"></select>
+        </div>
+        <div class="col-md-6">
+            <label>Instructor</label>
+            <select asp-for="Session.InstructorProfileId" class="form-select">
+                @foreach (var instructor in Model.Instructors)
+                {
+                    <option value="@instructor.Id">@instructor.FullName - @string.Join(", ", instructor.Expertises.Select(e => e.CourseCategory?.Name))</option>
+                }
+            </select>
+            <div class="form-text">Availability is validated before the session is saved.</div>
+        </div>
+        <div class="col-md-6">
+            <label>Classroom</label>
+            <select asp-for="Session.ClassroomId" class="form-select">
+                @foreach (var room in Model.Classrooms)
+                {
+                    <option value="@room.Id">@room.RoomName (@room.Capacity seats) - @string.Join(", ", room.Equipment.Select(e => e.Name))</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Start</label>
+            <input asp-for="Session.StartDateTime" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>End</label>
+            <input asp-for="Session.EndDateTime" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Capacity</label>
+            <input asp-for="Session.Capacity" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Status</label>
+            <select asp-for="Session.Status" class="form-select" asp-items="Html.GetEnumSelectList<CourseSessionStatus>()"></select>
+        </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
