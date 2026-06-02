@@ -1,0 +1,17 @@
+@model InstructorProfile
+@{
+    ViewData["Title"] = "My Profile";
+}
+<h1 class="h3 mb-3">My Profile</h1>
+<div class="card shadow-sm p-4">
+    <h2 class="h5">@Model.FullName</h2>
+    <p>@Model.Bio</p>
+    <p><strong>Expertise:</strong> @string.Join(", ", Model.Expertises.Select(e => e.CourseCategory!.Name))</p>
+    <h3 class="h6">Availability</h3>
+    <ul>
+        @foreach (var slot in Model.Availability)
+        {
+            <li>@slot.DayOfWeek: @slot.StartTime - @slot.EndTime</li>
+        }
+    </ul>
+</div>
