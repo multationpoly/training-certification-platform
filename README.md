@@ -80,7 +80,3 @@ Courses belong to categories and may require prerequisite courses through `Cours
 - `Database/schema.sql` creates the SQL Server database schema, including ASP.NET Identity tables, constraints, relationships, indexes, and EF migration history rows.
 - `Database/seed.sql` seeds lookup/demo data and Identity roles/users for each role. All seeded demo accounts use `Admin@12345`.
 - Identity and application data share one SQL Server database through `ApplicationDbContext`, so there is no separate Identity database script.
-
-## Notes for Viva/Demo
-
-The solution intentionally avoids CQRS, MediatR, microservices, and advanced enterprise patterns. Services contain straightforward business rules that are easy to explain: capacity checks, prerequisite checks, instructor/room booking checks, certificate eligibility, and SignalR seat updates.
