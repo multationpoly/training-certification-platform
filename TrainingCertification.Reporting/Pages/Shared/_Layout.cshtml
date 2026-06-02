@@ -1,0 +1,47 @@
+@using TrainingCertification.Reporting.Services
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var path = Context.Request.Path.Value ?? string.Empty;
+    var coordinatorName = HttpContextAccessor.HttpContext?.Session.GetString(SessionKeys.CoordinatorName);
+    var isLogin = path.Equals("/", StringComparison.OrdinalIgnoreCase) || path.Equals("/Index", StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Training Platform Reports</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="reporting-body">
+    @if (isLogin)
+    {
+        <main class="container py-4">@RenderBody()</main>
+    }
+    else
+    {
+        <div class="app-shell">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="app-title">Training Platform - Reports</div>
+                    <div class="coordinator-name">@coordinatorName</div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a class="@(path.StartsWith("/Dashboard") ? "active" : "")" asp-page="/Dashboard">Dashboard</a>
+                    <a class="@(path.StartsWith("/Reports/Enrollments") ? "active" : "")" asp-page="/Reports/Enrollments">Enrollment Report</a>
+                    <a class="@(path.StartsWith("/Reports/InstructorWorkload") ? "active" : "")" asp-page="/Reports/InstructorWorkload">Instructor Workload Report</a>
+                    <a class="@(path.StartsWith("/Reports/Certifications") ? "active" : "")" asp-page="/Reports/Certifications">Certification Report</a>
+                    <a class="@(path.StartsWith("/Reports/Revenue") ? "active" : "")" asp-page="/Reports/Revenue">Revenue Report</a>
+                    <a asp-page="/Logout">Logout</a>
+                </nav>
+            </aside>
+            <main class="content-shell">@RenderBody()</main>
+        </div>
+    }
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/charts.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", false)
+</body>
+</html>
