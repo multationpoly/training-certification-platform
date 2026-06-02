@@ -1,0 +1,22 @@
+@model TrainingCertification.MVC.ViewModels.ClassroomFormViewModel
+@{
+    var isEdit = Model.Classroom.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Classroom" : "Add Classroom";
+}
+<h1 class="h3">@(isEdit ? "Edit Classroom" : "Add Classroom")</h1>
+<form asp-action="SaveClassroom" method="post" class="card p-4 shadow-sm">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input asp-for="Classroom.Id" type="hidden" />
+    <label asp-for="Classroom.RoomName" class="form-label"></label>
+    <input asp-for="Classroom.RoomName" class="form-control mb-3" />
+    <label asp-for="Classroom.Location" class="form-label"></label>
+    <input asp-for="Classroom.Location" class="form-control mb-3" />
+    <label asp-for="Classroom.Capacity" class="form-label"></label>
+    <input asp-for="Classroom.Capacity" class="form-control mb-3" />
+    <label asp-for="EquipmentCsv" class="form-label"></label>
+    <input asp-for="EquipmentCsv" class="form-control mb-3" placeholder="Projector, Lab computers" />
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary">Save</button>
+        <a asp-action="Classrooms" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
