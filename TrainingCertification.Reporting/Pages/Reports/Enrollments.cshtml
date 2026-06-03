@@ -1,0 +1,90 @@
+@page
+@model TrainingCertification.Reporting.Pages.Reports.EnrollmentsModel
+@using System.Text.Json
+@using TrainingCertification.Reporting.Helpers
+@{
+    ViewData["Title"] = "Enrollment Report";
+    var labels = Model.Report.Rows.Select(row => row.CourseTitle).ToList();
+    var totals = Model.Report.Rows.Select(row => row.TotalEnrolled).ToList();
+}
+
+<div class="page-heading">
+    <h1>Enrollment Statistics</h1>
+</div>
+
+<form method="get" class="report-panel row g-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label">Date From</label>
+        <input type="date" name="from" value="@Model.Report.From.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Date To</label>
+        <input type="date" name="to" value="@Model.Report.To.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-md-auto">
+        <button class="btn btn-dark" type="submit">Apply Filter</button>
+        <a class="btn btn-outline-secondary" asp-page="/Reports/Enrollments">Reset</a>
+    </div>
+</form>
+
+@if (Model.Report.HasError)
+{
+    <div class="alert alert-warning">@Model.Report.ErrorMessage</div>
+}
+else if (!Model.Report.Rows.Any())
+{
+    <div class="alert alert-info">No enrollment data found for the selected period</div>
+}
+else
+{
+    <div class="metrics-grid">
+        <div class="metric-card"><span>Total enrollments</span><strong>@Model.Report.TotalEnrollments</strong></div>
+        <div class="metric-card"><span>Confirmed</span><strong>@Model.Report.Confirmed</strong></div>
+        <div class="metric-card"><span>Completed</span><strong>@Model.Report.Completed</strong></div>
+        <div class="metric-card"><span>Dropped</span><strong>@Model.Report.Dropped</strong></div>
+    </div>
+
+    <div class="report-panel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Course Title</th>
+                        <th>Category</th>
+                        <th>Total Enrolled</th>
+                        <th>Confirmed</th>
+                        <th>Attending</th>
+                        <th>Completed</th>
+                        <th>Dropped</th>
+                        <th>Pass Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Report.Rows)
+                    {
+                        <tr>
+                            <td>@row.CourseTitle</td>
+                            <td>@row.Category</td>
+                            <td>@row.TotalEnrolled</td>
+                            <td>@row.Confirmed</td>
+                            <td>@row.Attending</td>
+                            <td>@row.Completed</td>
+                            <td>@row.Dropped</td>
+                            <td>@(row.PassRate.HasValue ? ReportFormat.Percent(row.PassRate.Value) : "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="report-panel chart-wrap">
+        <canvas id="enrollmentChart"></canvas>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        reportingCharts.renderBar('enrollmentChart', @Html.Raw(JsonSerializer.Serialize(labels)), @Html.Raw(JsonSerializer.Serialize(totals)), 'Enrollment Counts per Course', 'Enrollments', false);
+    </script>
+}

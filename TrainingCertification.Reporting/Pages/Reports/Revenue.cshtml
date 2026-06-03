@@ -1,0 +1,102 @@
+@page
+@model TrainingCertification.Reporting.Pages.Reports.RevenueModel
+@using System.Text.Json
+@using TrainingCertification.Reporting.Helpers
+@using TrainingCertification.Reporting.ViewModels
+@{
+    ViewData["Title"] = "Revenue Report";
+    var chartLabels = Model.Report.Rows.Select(row => row.CourseTitle).ToList();
+    var chartData = Model.Report.Rows.Select(row => row.Collected).ToList();
+}
+
+<div class="page-heading">
+    <h1>Revenue Report</h1>
+</div>
+
+<form method="get" class="report-panel row g-3 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label">Date From</label>
+        <input type="date" name="from" value="@Model.Report.From.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Date To</label>
+        <input type="date" name="to" value="@Model.Report.To.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-md-auto">
+        <button class="btn btn-dark" type="submit">Apply Filter</button>
+        <a class="btn btn-outline-secondary" asp-page="/Reports/Revenue">Reset</a>
+    </div>
+</form>
+
+@if (Model.Report.HasError)
+{
+    <div class="alert alert-warning">@Model.Report.ErrorMessage</div>
+}
+else if (!Model.Report.Rows.Any())
+{
+    <div class="alert alert-info">No revenue data found for the selected period</div>
+}
+else
+{
+    <div class="metrics-grid">
+        <div class="metric-card"><span>Total Collected</span><strong>@ReportFormat.Money(Model.Report.TotalCollected)</strong></div>
+        <div class="metric-card"><span>Total Outstanding</span><strong>@ReportFormat.Money(Model.Report.TotalOutstanding)</strong></div>
+        <div class="metric-card"><span>Total Overdue</span><strong>@ReportFormat.Money(Model.Report.TotalOverdue)</strong></div>
+        <div class="metric-card"><span>Collection Rate</span><strong>@ReportFormat.Percent(Model.Report.CollectionRate)</strong></div>
+    </div>
+
+    <div class="report-panel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Course Title</th>
+                        <th>Session Date</th>
+                        <th>Instructor</th>
+                        <th>Enrolled Count</th>
+                        <th>Expected Revenue</th>
+                        <th>Collected</th>
+                        <th>Outstanding</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Report.Rows)
+                    {
+                        var badgeClass = row.Status == RevenueStatus.FullyPaid ? "badge-good" : row.Status == RevenueStatus.Overdue ? "badge-problem" : "badge-warning";
+                        var statusText = row.Status == RevenueStatus.FullyPaid ? "Fully Paid" : row.Status == RevenueStatus.Overdue ? "Overdue" : "Partially Paid";
+                        <tr>
+                            <td>@row.CourseTitle</td>
+                            <td>@(row.SessionDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td>@row.Instructor</td>
+                            <td>@(row.EnrolledCount?.ToString() ?? "—")</td>
+                            <td>@ReportFormat.Money(row.ExpectedRevenue)</td>
+                            <td>@ReportFormat.Money(row.Collected)</td>
+                            <td>@ReportFormat.Money(row.Outstanding)</td>
+                            <td><span class="badge @badgeClass">@statusText</span></td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4">Total</th>
+                        <th>@ReportFormat.Money(Model.Report.Rows.Sum(row => row.ExpectedRevenue))</th>
+                        <th>@ReportFormat.Money(Model.Report.TotalCollected)</th>
+                        <th>@ReportFormat.Money(Model.Report.TotalOutstanding)</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="report-panel chart-wrap">
+        <canvas id="revenueChart"></canvas>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        reportingCharts.renderLine('revenueChart', @Html.Raw(JsonSerializer.Serialize(chartLabels)), @Html.Raw(JsonSerializer.Serialize(chartData)));
+    </script>
+}

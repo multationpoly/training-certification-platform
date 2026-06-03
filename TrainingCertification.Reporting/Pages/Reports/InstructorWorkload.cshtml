@@ -1,0 +1,64 @@
+@page
+@model TrainingCertification.Reporting.Pages.Reports.InstructorWorkloadModel
+@using System.Text.Json
+@using TrainingCertification.Reporting.Helpers
+@{
+    ViewData["Title"] = "Instructor Workload";
+    var labels = Model.Report.Rows.Select(row => row.InstructorName).ToList();
+    var totals = Model.Report.Rows.Select(row => row.TotalTraineesTaught).ToList();
+}
+
+<div class="page-heading">
+    <h1>Instructor Workload</h1>
+</div>
+
+@if (Model.Report.HasError)
+{
+    <div class="alert alert-warning">@Model.Report.ErrorMessage</div>
+}
+else if (!Model.Report.Rows.Any())
+{
+    <div class="alert alert-info">No instructor data available</div>
+}
+else
+{
+    <div class="report-panel">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Instructor Name</th>
+                        <th>Expertise Areas</th>
+                        <th>Total Sessions</th>
+                        <th>Upcoming Sessions</th>
+                        <th>Total Trainees Taught</th>
+                        <th>Completion Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Report.Rows)
+                    {
+                        <tr class="@(row.IsBusiest ? "row-highlight" : row.HasNoUpcomingSessions ? "row-muted" : "")">
+                            <td>@row.InstructorName</td>
+                            <td>@row.ExpertiseAreas</td>
+                            <td>@row.TotalSessions</td>
+                            <td>@row.UpcomingSessions</td>
+                            <td>@row.TotalTraineesTaught</td>
+                            <td>@ReportFormat.Percent(row.CompletionRate)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="report-panel chart-wrap">
+        <canvas id="workloadChart"></canvas>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        reportingCharts.renderBar('workloadChart', @Html.Raw(JsonSerializer.Serialize(labels)), @Html.Raw(JsonSerializer.Serialize(totals)), 'Total Trainees Taught per Instructor', 'Trainees', true);
+    </script>
+}
