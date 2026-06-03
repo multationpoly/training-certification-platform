@@ -81,6 +81,19 @@ Courses belong to categories and may require prerequisite courses through `Cours
 - `Database/seed.sql` seeds lookup/demo data and Identity roles/users for each role. All seeded demo accounts use `Admin@12345`.
 - Identity and application data share one SQL Server database through `ApplicationDbContext`, so there is no separate Identity database script.
 
-## Notes for Viva/Demo
+## Live Deployment
 
-The solution intentionally avoids CQRS, MediatR, microservices, and advanced enterprise patterns. Services contain straightforward business rules that are easy to explain: capacity checks, prerequisite checks, instructor/room booking checks, certificate eligibility, and SignalR seat updates.
+The platform is deployed on Microsoft Azure across three separate App Services.
+
+| Project | URL |
+|---------|-----|
+| API | https://training-cert-api-hrbpeaach4h8b5e6.westeurope-01.azurewebsites.net |
+| MVC | https://training-cert-mvc-hffreseeasa6cqbh.westeurope-01.azurewebsites.net |
+| Reporting | https://training-cert-reporting-cnejd8haereqcsht.westeurope-01.azurewebsites.net |
+
+All three services are hosted in the **West Europe** region under a shared resource group.
+The database is an **Azure SQL Database** with migrations applied against the live instance.
+Environment variables for connection strings, JWT settings, and API base URLs are configured
+directly in each App Service — no secrets are stored in the repository.
+
+Use the demo credentials above to log in.
